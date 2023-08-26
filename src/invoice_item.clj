@@ -56,9 +56,24 @@
   )
 
 
+(defn change-keys [old_map new_key]
+  (reduce-kv
+    (fn [new-map k v] (assoc new-map (new_key k) v))
+    {}
+    old_map
+    )
+  )
+
+(defn load-json-file
+  [invoice]
+  (json/read-str invoice :key-fn keyword)
+  )
+
 (defn invoice
   [invoice]
   (
-    json/read-str invoice :key-fn keyword
-                  )
+   ;;load-json-file invoice
+   ;;get (load-json-file invoice) :invoice
+   change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
+   )
   )

@@ -23,5 +23,5 @@
 (prn (invoice-item/invoice invoice_json_path))
 
 
-(run-tests 'invoice-spec)
+;;(run-tests 'invoice-spec)
 

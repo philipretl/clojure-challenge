@@ -56,13 +56,32 @@
   )
 
 
+
 (defn change-keys [old_map new_key]
   (reduce-kv
-    (fn [new-map k v] (assoc new-map (new_key k) v))
+    (fn [new-map key value]
+      (println (str "#### " "key: " key " - value:" value))
+      (println (str key ": " (sequential? value)))
+      (if (sequential? value)
+        (doseq [current_item value]
+          (prn (str "value for array: " key))
+          (prn current_item)
+          (prn "start result from recursive call")
+          (prn (apply (change-keys current_item new_key) value) )
+          (prn "end result")
+          )
+          (assoc new-map (new_key key) value)
+        )
+      ;;(change-keys value new_key)
+      ;;(assoc new-map (new_key key) value)
+      (assoc new-map (new_key key) value)
+      )
     {}
     old_map
     )
   )
+
+
 
 (defn load-json-file
   [invoice]
@@ -72,8 +91,8 @@
 (defn invoice
   [invoice]
   (
-   ;;load-json-file invoice
-   ;;get (load-json-file invoice) :invoice
-   change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
-   )
+    ;;load-json-file invoice
+    ;;get (load-json-file invoice) :invoice
+    change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
+                )
   )

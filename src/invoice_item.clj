@@ -57,19 +57,36 @@
 
 (defn map-if-is-array? [value, new_key]
   (if (sequential? value)
-    (map (fn [item]
-           (reduce (fn [row-map [key value]]
-                     (if (sequential? value)
-                       (map-if-is-array? value #(str "invoice/" %))
-                       (assoc row-map (new_key key) value)
-                       )
-                     )
-                   {}
-                   item)
-           )
-         value
+    (vec (map (fn [item]
+                (reduce (fn [row-map [key value]]
+                          (if (sequential? value)
+                            (map-if-is-array? value #(str "invoice/" %))
+                            (assoc row-map (new_key key) value)
+                            )
+                          )
+                        {}
+                        item)
+                )
+              value
+              )
          )
-    value
+    (if (map? value)
+      (map (fn [item]
+             (
+              (reduce (fn [row-map [key value]]
+                        (if (sequential? value)
+                          (map-if-is-array? value #(str "invoice/" %))
+                          (assoc row-map (new_key key) value)
+                          )
+                        )
+                      {}
+                      item)
+              )
+             value
+             )
+           )
+      value
+      )
     )
   )
 

@@ -60,35 +60,22 @@
     (vec (map (fn [item]
                 (reduce (fn [row-map [key value]]
                           (if (sequential? value)
-                            (map-if-is-array? value #(str "invoice/" %))
+                            (map-if-is-array? value #(str key "/" %))
                             (assoc row-map (new_key key) value)
                             )
                           )
                         {}
                         item)
                 )
-              value
-              )
+              value)
          )
     (if (map? value)
-      (map (fn [item]
-             (
-              (reduce (fn [row-map [key value]]
-                        (if (sequential? value)
-                          (map-if-is-array? value #(str "invoice/" %))
-                          (assoc row-map (new_key key) value)
-                          )
-                        )
-                      {}
-                      item)
-              )
-             value
-             )
-           )
+      value ;; TODO pending solve this
       value
       )
     )
   )
+
 
 
 (defn change-keys [old_map new_key]
@@ -103,7 +90,7 @@
     )
   )
 
-(def values [{:tax_category "RET_FUENTE", :tax_rate 15.0} {:tax_category "RET_IVA", :tax_rate 15.0}])
+(def value  {:company_name "ANDRADE RODRIGUEZ MANUEL ALEJANDRO", :email "cgallegoaecu@gmail.com"})
 
 
 

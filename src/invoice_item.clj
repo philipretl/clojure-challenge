@@ -9,12 +9,12 @@
 
 (defn subtotal
   [{:keys [precise-quantity precise-price discount-rate]
-    :as                item
-    :or                {discount-rate 0}}]
-    (if (or (< precise-quantity 0) (< precise-price 0 ) (< discount-rate 0))
-      0.0
-      (* precise-price precise-quantity (discount-factor item)))
-    )
+    :as   item
+    :or   {discount-rate 0}}]
+  (if (or (< precise-quantity 0) (< precise-price 0) (< discount-rate 0))
+    0.0
+    (* precise-price precise-quantity (discount-factor item)))
+  )
 
 
 ;; First Challenge
@@ -63,32 +63,28 @@
 
 ;; Second Challenge
 
-(defn map-if-is-array? [value, new_key]
-  (if (sequential? value)
-    (map (fn [item]
-           (reduce (fn [row-map [key value]]
-                     (if (sequential? value)
-                       (map-if-is-array? value #(str key "/" %))
-                       (assoc row-map (new_key (name key)) value)
-                       )
-                     )
-                   {}
-                   item)
-           )
-         value)
-    (if (map? value)
-      (reduce-kv
-        (fn [new-map key value]
-          ;;(println (str "#### " "key: " key " - value:" value))
-          ;;(println (str key ": " (sequential? value)))
-          (assoc new-map key (map-if-is-array? value new_key))
-          )
-        {}
-        value
-        )
-      value
-      )
-    )
+(def array_values {:taxes [
+                           {
+                            :tax_category "IVA"
+                            :tax_rate     19
+                            }
+                           ]
+                   }
+  )
+
+
+(defn replace-if-is-array [value, new_key]
+  (vec (map (fn [item]
+              (reduce (fn [row-map [key value]]
+                        (assoc row-map (#(str new_key "/" %) (name key)) value)
+                        )
+                      {}
+                      item)
+              )
+            (get value (first (keys value)))
+
+            )
+       )
   )
 
 
@@ -96,26 +92,22 @@
 (defn change-keys [old_map new_key]
   (reduce-kv
     (fn [new-map key value]
-      ;;(println (str "#### " "key: " key " - value:" value))
-      ;;(println (str key ": " (sequential? value)))
-      (assoc new-map (new_key (name key)) (map-if-is-array? value new_key))
+      (assoc new-map (new_key (name key)) (replace-if-is-array value new_key))
       )
     {}
     old_map
     )
   )
 
-(def values {:company_name "ANDRADE RODRIGUEZ MANUEL ALEJANDRO", :email "cgallegoaecu@gmail.com"})
+(def map_values {:customer {:company_name "ANDRADE RODRIGUEZ MANUEL ALEJANDRO", :email "cgallegoaecu@gmail.com"}})
 
 (defn replace-if-is-map [value, new_key]
-  (if (map? value)
-    (reduce (fn [row-map [key value]]
-              (assoc row-map (new_key key) value)
-              )
-            {}
-            value)
-    )
-
+  (reduce (fn [row-map [key value]]
+            (assoc row-map (#(str new_key "/" %) (name key)) value)
+            )
+          {}
+          (get value (first (keys value)))
+          )
   )
 
 (defn load-json-file
@@ -123,14 +115,20 @@
   (json/read-str invoice :key-fn keyword)
   )
 
+
+
+
 (defn invoice
   [invoice]
   (
     ;;load-json-file invoice
     ;;get (load-json-file invoice) :invoice
-    change-keys (get (load-json-file invoice) :invoice) #(str ":invoice/" %)
-                ;;map-array values #(str "invoice/" %)
-                ;;values
-                ;;replace-if-is-map values #(str "customer/" %)
-                )
+    ;;change-keys (get (load-json-file invoice) :invoice) #(str ":invoice/" %)
+    ;;map-array values #(str "invoice/" %)
+    ;;values
+    ;;replace-if-is-map map_values (first (keys map_values))
+    replace-if-is-array array_values (first (keys array_values))
+                        ;;(prn (get array_values (first(keys array_values))))
+
+                        )
   )

@@ -69,11 +69,15 @@
            )
          value)
     (if (map? value)
-      (reduce (fn [row-map [key value]]
-                (assoc row-map (new_key (name key)) value)
-                )
-              {}
-              value)
+      (reduce-kv
+        (fn [new-map key value]
+          ;;(println (str "#### " "key: " key " - value:" value))
+          ;;(println (str key ": " (sequential? value)))
+          (assoc new-map key (map-if-is-array? value new_key))
+          )
+        {}
+        value
+        )
       value
       )
     )
@@ -84,8 +88,8 @@
 (defn change-keys [old_map new_key]
   (reduce-kv
     (fn [new-map key value]
-      (println (str "#### " "key: " key " - value:" value))
-      (println (str key ": " (sequential? value)))
+      ;;(println (str "#### " "key: " key " - value:" value))
+      ;;(println (str key ": " (sequential? value)))
       (assoc new-map (new_key (name key)) (map-if-is-array? value new_key))
       )
     {}

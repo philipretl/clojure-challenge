@@ -14,29 +14,28 @@
 (s/def :invoice/customer (s/keys :req [:customer/name
                                        :customer/email]))
 
-;;(s/def :tax/rate double?)
-;;(s/def :tax/category #{:iva})
-;;(s/def ::tax (s/keys :req [:tax/category :tax/rate]))
-;;(s/def :invoice-item/taxes (s/coll-of ::tax :kind vector? :min-count 1))
+(s/def :tax/rate double?)
+(s/def :tax/category #{:iva})
+(s/def ::tax (s/keys :req [:tax/category :tax/rate]))
+(s/def :invoice-item/taxes (s/coll-of ::tax :kind vector? :min-count 1))
 
-;;(s/def :invoice-item/price double?)
-;;(s/def :invoice-item/quantity double?)
-;;(s/def :invoice-item/sku non-empty-string?)
+(s/def :invoice-item/price double?)
+(s/def :invoice-item/quantity double?)
+(s/def :invoice-item/sku non-empty-string?)
 
-;;(s/def ::invoice-item
-  ;;(s/keys :req [:invoice-item/price
-   ;;             :invoice-item/quantity
-    ;;            :invoice-item/sku
-      ;;          :invoice-item/taxes]))
+(s/def ::invoice-item
+  (s/keys :req [:invoice-item/price
+                :invoice-item/quantity
+                :invoice-item/sku
+                :invoice-item/taxes]))
 
-;;(s/def :invoice/issue-date inst?)
-;;(s/def :invoice/items (s/coll-of ::invoice-item :kind vector? :min-count 1))
+(s/def :invoice/issue-date inst?)
+(s/def :invoice/items (s/coll-of ::invoice-item :kind vector? :min-count 1))
 
 (s/def ::invoice
-  (s/keys :req [
-                ;;:invoice/issue-date
+  (s/keys :req [:invoice/issue-date
                 :invoice/customer
-                ]))
+                :invoice/items]))
 
 
 (def invoice_result (invoice-item/invoice (slurp "invoice.json")))
@@ -47,33 +46,33 @@
   (s/explain ::invoice invoice_result)
   )
 
-#_(deftest it_checks_if_is_a_valid_invoice_from_json_file
-  (prn "test")
-  (prn invoice_result)
-  (prn (get-in invoice_result [:customer :name]))
-  (prn (s/valid? :customer/name (get-in invoice_result [:customer :name])))
+
+;; Subtotal Unit Test
+(s/def ::subtotal
+  (s/keys :req [
+                :subtotal/discount
+                ])
   )
+(s/def :subtotal/discount double?)
 
-#_(def customer (get invoice_result [:id]))
-#_(deftest it_checks_if_is_a_valid_invoice_from_json_file_#
-  (prn "test_#")
-  (prn invoice_result)
-  (prn "customer")
-  (prn customer)
-  (prn (s/valid? :invoice/customer customer))
-  )                                                         ;; paso ok con true
+(deftest subtotal_test
+  (testing "It checks the values that the function subtotal calculate"
+    (is (= 16.0 (invoice-item/subtotal {:precise-quantity 2 :precise-price 10 :discount-rate 20})))
+    (is (= 20.0 (invoice-item/subtotal {:precise-quantity 2 :precise-price 10})))
+    (is ::subtotal (invoice-item/subtotal  {:precise-quantity 2 :precise-price 10 :discount-rate 20}))
 
-#_(def customer2 (get-in invoice_result [:invoice :customer]))
-#_(deftest it_checks_if_is_a_valid_invoice_from_json_file_#_2
-  (prn "test_#_2")
-  (prn invoice_result)
-  (prn "Customer 2")
-  (prn customer2)
-  (prn "invoice with key")
-  (prn (get invoice_result :invoice))
-  (prn (s/valid? ::invoice get (invoice_result :invoice)))
-  (prn "date")
-  (prn (s/valid? :order/date (Date.)))
-  (s/explain ::invoice invoice_result)
+    )
+
+  (testing "It checks the values when the quantity is zero"
+    (is (= 0.0 (invoice-item/subtotal {:precise-quantity 0 :precise-price 10 :discount-rate 20})))
+    )
+
+  (testing "It checks the values when the price is zero"
+    (is (= 0.0 (invoice-item/subtotal {:precise-quantity 2 :precise-price 0 :discount-rate 20})))
+    )
+
+  (testing "It checks the values when the quantity or price or discount rate is negative value"
+    (is (= 0.0 (invoice-item/subtotal {:precise-quantity -2 :precise-price -2 :discount-rate -20})))
+    )
 
   )

@@ -3,15 +3,18 @@
   )
 
 
-(defn- discount-factor [{:invoice-item/keys [discount-rate]
-                         :or                {discount-rate 0}}]
+(defn- discount-factor [{:keys [discount-rate]
+                         :or   {discount-rate 0}}]
   (- 1 (/ discount-rate 100.0)))
 
 (defn subtotal
-  [{:invoice-item/keys [precise-quantity precise-price discount-rate]
+  [{:keys [precise-quantity precise-price discount-rate]
     :as                item
     :or                {discount-rate 0}}]
-  (* precise-price precise-quantity (discount-factor item)))
+    (if (or (< precise-quantity 0) (< precise-price 0 ) (< discount-rate 0))
+      0.0
+      (* precise-price precise-quantity (discount-factor item)))
+    )
 
 
 (defn has-retention-rate-equal-to-one?

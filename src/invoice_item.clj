@@ -57,20 +57,23 @@
 
 (defn map-if-is-array? [value, new_key]
   (if (sequential? value)
-    (vec (map (fn [item]
-                (reduce (fn [row-map [key value]]
-                          (if (sequential? value)
-                            (map-if-is-array? value #(str key "/" %))
-                            (assoc row-map (new_key key) value)
-                            )
-                          )
-                        {}
-                        item)
-                )
-              value)
-         )
+    (map (fn [item]
+           (reduce (fn [row-map [key value]]
+                     (if (sequential? value)
+                       (map-if-is-array? value #(str key "/" %))
+                       (assoc row-map (new_key (name key)) value)
+                       )
+                     )
+                   {}
+                   item)
+           )
+         value)
     (if (map? value)
-      value ;; TODO pending solve this
+      (reduce (fn [row-map [key value]]
+                (assoc row-map (new_key (name key)) value)
+                )
+              {}
+              value)
       value
       )
     )
@@ -83,16 +86,25 @@
     (fn [new-map key value]
       (println (str "#### " "key: " key " - value:" value))
       (println (str key ": " (sequential? value)))
-      (assoc new-map (new_key key) (map-if-is-array? value new_key))
+      (assoc new-map (new_key (name key)) (map-if-is-array? value new_key))
       )
     {}
     old_map
     )
   )
 
-(def value  {:company_name "ANDRADE RODRIGUEZ MANUEL ALEJANDRO", :email "cgallegoaecu@gmail.com"})
+(def values {:company_name "ANDRADE RODRIGUEZ MANUEL ALEJANDRO", :email "cgallegoaecu@gmail.com"})
 
+(defn replace-if-is-map [value, new_key]
+  (if (map? value)
+    (reduce (fn [row-map [key value]]
+              (assoc row-map (new_key key) value)
+              )
+            {}
+            value)
+    )
 
+  )
 
 (defn load-json-file
   [invoice]
@@ -104,7 +116,9 @@
   (
     ;;load-json-file invoice
     ;;get (load-json-file invoice) :invoice
-    change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
+    change-keys (get (load-json-file invoice) :invoice) #(str ":invoice/" %)
                 ;;map-array values #(str "invoice/" %)
+                ;;values
+                ;;replace-if-is-map values #(str "customer/" %)
                 )
   )

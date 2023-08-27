@@ -55,6 +55,16 @@
 
   )
 
+(defn map-array [array, new_key]
+  (map (fn [item]
+         (reduce (fn [row-map [key value]]
+                   (assoc row-map (new_key key) value))
+                 {}
+                 item)
+         )
+       array
+       )
+  )
 
 
 (defn change-keys [old_map new_key]
@@ -63,23 +73,16 @@
       (println (str "#### " "key: " key " - value:" value))
       (println (str key ": " (sequential? value)))
       (if (sequential? value)
-        (doseq [current_item value]
-          (prn (str "value for array: " key))
-          (prn current_item)
-          (prn "start result from recursive call")
-          (prn (apply (change-keys current_item new_key) value) )
-          (prn "end result")
-          )
-          (assoc new-map (new_key key) value)
+        (assoc new-map (new_key key) (map-array value new_key))
         )
-      ;;(change-keys value new_key)
-      ;;(assoc new-map (new_key key) value)
       (assoc new-map (new_key key) value)
       )
     {}
     old_map
     )
   )
+
+(def values [{:tax_category "RET_FUENTE", :tax_rate 15.0} {:tax_category "RET_IVA", :tax_rate 15.0}])
 
 
 
@@ -93,6 +96,7 @@
   (
     ;;load-json-file invoice
     ;;get (load-json-file invoice) :invoice
-    change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
-                )
+    ;;change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
+    ;;map-array values #(str "invoice/" %)
+              )
   )

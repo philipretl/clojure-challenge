@@ -17,6 +17,8 @@
     )
 
 
+;; First Challenge
+
 (defn has-retention-rate-equal-to-one?
   [retentions]
   (filter (fn [retention_item] (if (= 1 (get retention_item :retention/rate))
@@ -57,6 +59,9 @@
           )
 
   )
+
+
+;; Second Challenge
 
 (defn map-if-is-array? [value, new_key]
   (if (sequential? value)

@@ -1,6 +1,6 @@
 (ns invoice-item
   (:require [clojure.data.json :as json])
-  )
+  (:import (java.util Date)))
 
 
 (defn- discount-factor [{:keys [discount-rate]
@@ -81,18 +81,32 @@
                       {}
                       item)
               )
-            (get value (first (keys value)))
+            value
 
             )
        )
   )
 
+(defn map-items [items, new_key]
+  (replace-if-is-array items new_key)
+  )
 
+(defn map-retentions [retentions, new_key]
+  (replace-if-is-array retentions new_key)
+  )
 
 (defn change-keys [old_map new_key]
   (reduce-kv
     (fn [new-map key value]
-      (assoc new-map (new_key (name key)) (replace-if-is-array value new_key))
+      ;;(println key)
+      (assoc new-map (new_key (name key))
+                     (cond
+                       (= key :items) (map-items value key)
+                       (= key :issue_date) (Date.)
+                       (= key :retentions) (map-retentions value key)
+                       :else value
+                       )
+                     )
       )
     {}
     old_map
@@ -100,6 +114,7 @@
   )
 
 (def map_values {:customer {:company_name "ANDRADE RODRIGUEZ MANUEL ALEJANDRO", :email "cgallegoaecu@gmail.com"}})
+
 
 (defn replace-if-is-map [value, new_key]
   (reduce (fn [row-map [key value]]
@@ -123,12 +138,12 @@
   (
     ;;load-json-file invoice
     ;;get (load-json-file invoice) :invoice
-    ;;change-keys (get (load-json-file invoice) :invoice) #(str ":invoice/" %)
-    ;;map-array values #(str "invoice/" %)
-    ;;values
-    ;;replace-if-is-map map_values (first (keys map_values))
-    replace-if-is-array array_values (first (keys array_values))
-                        ;;(prn (get array_values (first(keys array_values))))
+    change-keys (get (load-json-file invoice) :invoice) #(str ":invoice/" %)
+                ;;map-array values #(str "invoice/" %)
+                ;;values
+                ;;replace-if-is-map map_values (first (keys map_values))
+                ;;replace-if-is-array array_values (first (keys array_values))
+                ;;(prn (get array_values (first(keys array_values))))
 
-                        )
+                )
   )

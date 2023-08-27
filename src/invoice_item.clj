@@ -55,15 +55,20 @@
 
   )
 
-(defn map-array [array, new_key]
-  (map (fn [item]
-         (reduce (fn [row-map [key value]]
-                   (assoc row-map (new_key key) value))
-                 {}
-                 item)
+(defn map-if-is-array? [value, new_key]
+  (if (sequential? value)
+    (map (fn [item]
+           (reduce (fn [row-map [key value]]
+                     (
+                       assoc row-map (new_key key) value)
+                     )
+                   {}
+                   item)
+           )
+         value
          )
-       array
-       )
+    value
+    )
   )
 
 
@@ -72,10 +77,7 @@
     (fn [new-map key value]
       (println (str "#### " "key: " key " - value:" value))
       (println (str key ": " (sequential? value)))
-      (if (sequential? value)
-        (assoc new-map (new_key key) (map-array value new_key))
-        )
-      (assoc new-map (new_key key) value)
+      (assoc new-map (new_key key) (map-if-is-array? value new_key))
       )
     {}
     old_map
@@ -96,7 +98,7 @@
   (
     ;;load-json-file invoice
     ;;get (load-json-file invoice) :invoice
-    ;;change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
+    change-keys (get (load-json-file invoice) :invoice) #(str "invoice/" %)
     ;;map-array values #(str "invoice/" %)
-              )
+    )
   )

@@ -51,6 +51,9 @@ On the root of the project execute the command
 clojure -X console_test/x
 ```
 
+
+![image](img/execution.png)
+
 By Andres Felipe Vega Noguera
 email: afelipe.vega@gmail.com
 phone: +57 3012017499

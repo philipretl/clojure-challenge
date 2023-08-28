@@ -45,7 +45,15 @@ where invoice represents an invoice constructed from the JSON.
 ## Problem 3: Test Driven Development
 Given the function **subtotal** defined in **invoice-item.clj** in this repo, write at least five tests using clojure core **deftest** that demonstrates its correctness. This subtotal function calculates the subtotal of an invoice-item taking a discount-rate into account. Make sure the tests cover as many edge cases as you can!
 
+# Execution for console 
+On the root of the project execute the command 
+```bash
+clojure -X console_test/x
+```
 
+By Andres Felipe Vega Noguera
+email: afelipe.vega@gmail.com
+phone: +57 3012017499
 
 
 

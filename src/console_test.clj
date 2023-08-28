@@ -28,9 +28,9 @@
 (println "####### Third Challenge")
 (println "Make the suite test for the subtotal function")
 (println)
-(println "With - discount: " (invoice-item/subtotal {:precise-quantity 10 :precise-price 10 :discount-rate 20}))
-(println "Without - discount: " (invoice-item/subtotal {:precise-quantity 10 :precise-price 10}))
-(println "Negatives values - discount: " (invoice-item/subtotal {:precise-quantity -1 :precise-price -2 :discount-rate -2}))
+(println "With discount - subtotal: " (invoice-item/subtotal {:precise-quantity 10 :precise-price 10 :discount-rate 20}))
+(println "Without discount - subtotal: " (invoice-item/subtotal {:precise-quantity 10 :precise-price 10}))
+(println "Negatives values - subtotal: " (invoice-item/subtotal {:precise-quantity -1 :precise-price -2 :discount-rate -2}))
 
 ;; Run test
 (println)

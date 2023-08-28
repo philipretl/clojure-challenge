@@ -57,11 +57,12 @@
 
 (defn filter-invoices
   [items]
-  (filter (fn [item]
-            (if (only-iva-or-retention? item) item)
-            )
-          items
-          )
+  (vec (filter (fn [item]
+                 (if (only-iva-or-retention? item) item)
+                 )
+               items
+               )
+       )
 
   )
 

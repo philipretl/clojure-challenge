@@ -42,8 +42,10 @@
 
 (def invoice_result (invoice-item/invoice (slurp "invoice.json")))
 
-(deftest it_checks_if_is_a_valid_invoice_from_json_file
-  (is (s/valid? ::invoice invoice_result))
+(deftest invoice_map
+  (testing "It checks if the invoice is mapped correctly"
+    (is (s/valid? ::invoice invoice_result))
+    )
   )
 
 

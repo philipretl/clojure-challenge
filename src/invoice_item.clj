@@ -63,21 +63,9 @@
 
 
 ;; Second Challenge
-
-(def array_values {:taxes [
-                           {
-                            :tax_category "IVA"
-                            :tax_rate     19
-                            }
-                           ]
-                   }
-  )
-
-
 (defn transform-key [new-key value]
   (read-string (str (keyword new-key) "/" value))
   )
-
 
 
 (defn replace-if-is-array [value, new_key]
@@ -87,7 +75,6 @@
                                                       (cond
                                                         (= key :tax_category) "category"
                                                         (= key :tax_rate) "rate"
-                                                        ;;(= key :taxes) "tax"
                                                         :else (name key)
                                                         )
                                                       )
@@ -97,7 +84,7 @@
                                                  (integer? value) (double value)
                                                  (= key :tax_category) (keyword (str/lower-case value))
                                                  :else value
-                                                     )
+                                                 )
                                          )
                                        )
                         )
@@ -117,49 +104,6 @@
 (defn map-retentions [retentions, new_key]
   (replace-if-is-array retentions new_key)
   )
-
-(defn map-customer [value, new_key]
-  (reduce (fn [row-map [key value]]
-            (assoc row-map (transform-key new_key (cond
-                                                    (= key :company_name) "name"
-                                                    :else (name key)
-                                                    )
-                                          ) value)
-            )
-          {}
-          value
-          )
-  )
-
-(defn change-keys [old_map new_key]
-  (reduce-kv
-    (fn [new-map key value]
-      (assoc new-map (transform-key new_key (name key))
-                     (cond
-                       (= key :issue_date) (Date.)
-                       ;;(= key :items) (map-items value (name key))
-                       ;;(= key :customer) (map-customer value (name key))
-                       (= key :items) {}
-                       ;;(= key :retentions) (map-retentions value (name key))
-                       (= key :retentions) {}
-                       :else {}
-                       )
-                     )
-      )
-    {}
-    old_map
-    )
-  )
-
-(def map_values {:customer {:company_name "ANDRADE RODRIGUEZ MANUEL ALEJANDRO", :email "cgallegoaecu@gmail.com"}})
-
-
-(defn load-json-file
-  [invoice]
-  (json/read-str invoice :key-fn keyword)
-  )
-
-
 
 (defn invoice-mapper [json-map]
   {:invoice/issue-date         (Date.)
@@ -183,16 +127,5 @@
 
 (defn invoice
   [invoice]
-  (
-    invoice-mapper (load-data-from-json-file invoice)
-                   ;;load-json-file invoice
-                   ;;get (load-json-file invoice) :invoice
-                   ;;change-keys (get (load-json-file invoice) :invoice) "invoice"
-                   ;;map-array values #(str "invoice/" %)
-                   ;;values
-                   ;;replace-if-is-map map_values (first (keys map_values))
-                   ;;replace-if-is-array array_values (first (keys array_values))
-                   ;;(prn (get array_values (first(keys array_values))))
-
-                   )
+  (invoice-mapper (load-data-from-json-file invoice))
   )

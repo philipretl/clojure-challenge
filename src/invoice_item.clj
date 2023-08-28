@@ -74,7 +74,7 @@
 
 
 (defn transform [new-key value]
-  (str (keyword new-key) "/" value)
+  (read-string (str (keyword new-key) "/" value))
   )
 
 (defn replace-if-is-array [value, new_key]
@@ -92,7 +92,7 @@
   )
 
 (defn map-items [items, new_key]
-  (replace-if-is-array items new_key)
+  (replace-if-is-array items "invoice-item")
   )
 
 (defn map-retentions [retentions, new_key]
@@ -118,11 +118,13 @@
       ;;(println key)
       (assoc new-map (transform new_key (name key))
                      (cond
-                       (= key :items) (map-items value (name key))
-                       (= key :customer) (map-customer value (name key))
                        (= key :issue_date) (Date.)
-                       (= key :retentions) (map-retentions value (name key))
-                       :else value
+                       ;;(= key :items) (map-items value (name key))
+                       ;;(= key :customer) (map-customer value (name key))
+                       (= key :items) {}
+                       ;;(= key :retentions) (map-retentions value (name key))
+                       (= key :retentions) {}
+                       :else {}
                        )
                      )
       )
@@ -141,13 +143,33 @@
 
 
 
+(defn custom-map [json-map]
+  {:invoice/issue-date (Date.)
+   :invoice/order_reference (:order_reference json-map)
+   :invoice/payment_date (:payment_date json-map)
+   :invoice/payment_means (:payment_means json-map)
+   :invoice/payment_means_type (:payment_means_type json-map)
+   :invoice/number (:number json-map)
+   :invoice/items (map-items (:items json-map) (name :items))
+   :invoice/customer {
+                      :customer/name (get-in json-map[:customer :company_name])
+                      :customer/email (get-in json-map[:customer :email])
+                      }
+   :invoice/retentions (map-retentions (:retentions json-map) (name :retentions))
+   })
+
+(defn load-data-from-json-file [invoice_json_path]
+  (get (json/read-str invoice_json_path :key-fn keyword) :invoice)
+   )
+
 
 (defn invoice
   [invoice]
   (
+   custom-map (load-data-from-json-file invoice)
     ;;load-json-file invoice
     ;;get (load-json-file invoice) :invoice
-   change-keys (get (load-json-file invoice) :invoice) "invoice"
+   ;;change-keys (get (load-json-file invoice) :invoice) "invoice"
                 ;;map-array values #(str "invoice/" %)
                 ;;values
                 ;;replace-if-is-map map_values (first (keys map_values))

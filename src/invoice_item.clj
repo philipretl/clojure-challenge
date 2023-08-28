@@ -68,46 +68,48 @@
 
 
 ;; Second Challenge
-(defn transform-key [new-key value]
-  (read-string (str (keyword new-key) "/" value))
-  )
-
-
-(defn replace-if-is-array [value, new_key]
-  (vec (map (fn [item]
-              (reduce (fn [row-map [key value]]
-                        (assoc row-map (transform-key new_key
-                                                      (cond
-                                                        (= key :tax_category) "category"
-                                                        (= key :tax_rate) "rate"
-                                                        :else (name key)
-                                                        )
-                                                      )
-                                       (cond
-                                         (= key :taxes) (replace-if-is-array value "tax")
-                                         :else (cond
-                                                 (integer? value) (double value)
-                                                 (= key :tax_category) (keyword (str/lower-case value))
-                                                 :else value
-                                                 )
-                                         )
-                                       )
-                        )
-                      {}
-                      item)
-              )
-            value
-
-            )
-       )
-  )
-
-(defn map-items [items, new_key]
-  (replace-if-is-array items "invoice-item")
+(defn retentions-mapper [retention-json]
+  {:retentions/tax_category (:tax_category retention-json)
+   :retentions/tax_rate     (:tax_rate retention-json)
+   }
   )
 
 (defn map-retentions [retentions, new_key]
-  (replace-if-is-array retentions new_key)
+  (map (fn [retention]
+         (retentions-mapper retention)
+         )
+       retentions
+       )
+  )
+
+(defn invoice-taxes-mapper [invoice-taxes-json]
+  {:tax/category (keyword (str/lower-case (:tax_category invoice-taxes-json)))
+   :tax/rate     (double (:tax_rate invoice-taxes-json))
+   }
+  )
+
+(defn map-item-tax [taxes]
+  (map (fn [tax]
+         (invoice-taxes-mapper tax)
+         )
+       taxes
+       )
+  )
+
+(defn items-mapper [items-json-map]
+  {:invoice-item/price    (:price items-json-map)
+   :invoice-item/quantity (:quantity items-json-map)
+   :invoice-item/sku      (:sku items-json-map)
+   :invoice-item/taxes    (vec (map-item-tax (:taxes items-json-map)))
+   }
+  )
+
+(defn map-items [items]
+  (map (fn [item]
+         (items-mapper item)
+         )
+       items
+       )
   )
 
 (defn invoice-mapper [json-map]
@@ -117,12 +119,12 @@
    :invoice/payment_means      (:payment_means json-map)
    :invoice/payment_means_type (:payment_means_type json-map)
    :invoice/number             (:number json-map)
-   :invoice/items              (map-items (:items json-map) (name :items))
+   :invoice/items              (vec (map-items (:items json-map)))
    :invoice/customer           {
                                 :customer/name  (get-in json-map [:customer :company_name])
                                 :customer/email (get-in json-map [:customer :email])
                                 }
-   :invoice/retentions         (map-retentions (:retentions json-map) (name :retentions))
+   :invoice/retentions         (vec (map-retentions (:retentions json-map) (name :retentions)))
    })
 
 (defn load-data-from-json-file [invoice_json_path]

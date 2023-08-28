@@ -1,5 +1,6 @@
 (ns invoice-item
   (:require [clojure.data.json :as json])
+  (:require [clojure.string :as str])
   (:import (java.util Date)))
 
 
@@ -92,7 +93,11 @@
                                                       )
                                        (cond
                                          (= key :taxes) (replace-if-is-array value "tax")
-                                         :else value
+                                         :else (cond
+                                                 (integer? value) (double value)
+                                                 (= key :tax_category) (keyword (str/lower-case value))
+                                                 :else value
+                                                     )
                                          )
                                        )
                         )

@@ -1,7 +1,7 @@
 (ns invoice-spec
   (:require
     [clojure.spec.alpha :as s])
-  (:import (java.util Date)))
+  )
 
 (use 'clojure.test)
 (use 'invoice-item)
@@ -27,7 +27,8 @@
   (s/keys :req [:invoice-item/price
                 :invoice-item/quantity
                 :invoice-item/sku
-                :invoice-item/taxes]))
+                :invoice-item/taxes
+                ]))
 
 (s/def :invoice/issue-date inst?)
 (s/def :invoice/items (s/coll-of ::invoice-item :kind vector? :min-count 1))
@@ -35,15 +36,14 @@
 (s/def ::invoice
   (s/keys :req [:invoice/issue-date
                 :invoice/customer
-                :invoice/items]))
+                :invoice/items
+                ]))
 
 
 (def invoice_result (invoice-item/invoice (slurp "invoice.json")))
-;;(def invoice_result (clojure.edn/read-string (slurp "invoice_new.edn")))
 
 (deftest it_checks_if_is_a_valid_invoice_from_json_file
   (is (s/valid? ::invoice invoice_result))
-  (s/explain ::invoice invoice_result)
   )
 
 
@@ -59,7 +59,7 @@
   (testing "It checks the values that the function subtotal calculate"
     (is (= 16.0 (invoice-item/subtotal {:precise-quantity 2 :precise-price 10 :discount-rate 20})))
     (is (= 20.0 (invoice-item/subtotal {:precise-quantity 2 :precise-price 10})))
-    (is ::subtotal (invoice-item/subtotal  {:precise-quantity 2 :precise-price 10 :discount-rate 20}))
+    (is ::subtotal (invoice-item/subtotal {:precise-quantity 2 :precise-price 10 :discount-rate 20}))
 
     )
 

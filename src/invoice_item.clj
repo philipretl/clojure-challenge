@@ -49,10 +49,9 @@
 
 (defn only-iva-or-retention?
   [item]
-  (cond
-    (= 2 (+ (iva item) (ret item))) false
-    (= 1 (+ (iva item) (ret item))) true
-    :else false
+  (if (= 1 (+ (iva item) (ret item)))
+    true
+    false
     )
   )
 

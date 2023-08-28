@@ -74,7 +74,7 @@
    }
   )
 
-(defn map-retentions [retentions, new_key]
+(defn map-retentions [retentions]
   (map (fn [retention]
          (retentions-mapper retention)
          )
@@ -124,7 +124,7 @@
                                 :customer/name  (get-in json-map [:customer :company_name])
                                 :customer/email (get-in json-map [:customer :email])
                                 }
-   :invoice/retentions         (vec (map-retentions (:retentions json-map) (name :retentions)))
+   :invoice/retentions         (vec (map-retentions (:retentions json-map)))
    })
 
 (defn load-data-from-json-file [invoice_json_path]

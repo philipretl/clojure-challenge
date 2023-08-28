@@ -40,14 +40,19 @@
           )
   )
 
+(defn iva [item]
+  (count (has-tax-rate-iva-equal-to-nineteen? (get item :taxable/taxes)))
+  )
+(defn ret [item]
+  (count (has-retention-rate-equal-to-one? (get item :retentionable/retentions)))
+  )
 
 (defn only-iva-or-retention?
   [item]
-  (
-    if (= 2 (+ (count (has-tax-rate-iva-equal-to-nineteen? (get item :taxable/taxes))) (count (has-retention-rate-equal-to-one? (get item :retentionable/retentions))))
-          )
-    false
-    true
+  (cond
+    (= 2 (+ (iva item) (ret item))) false
+    (= 1 (+ (iva item) (ret item))) true
+    :else false
     )
   )
 
